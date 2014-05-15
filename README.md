@@ -6,12 +6,12 @@ Munin and Nagios plugins for a three-phase Server Tech PDU.
 # Munin
 
 For Munin: RTFM
-http://munin-monitoring.org/wiki/munin-node-configure
-http://munin-monitoring.org/wiki/Using_SNMP_plugins
+* http://munin-monitoring.org/wiki/munin-node-configure
+* http://munin-monitoring.org/wiki/Using_SNMP_plugins
 
 Quick and Dirty:
 
-Assuming your Server Tech PDU is at my-pdu and you've configured SNMP appropriately:
+Assuming the hostname of your Server Tech PDU is **my-pdu** and you've configured SNMP appropriately:
 
 ```
 git clone https://github.com/dannyman/sentry-plugins.git
