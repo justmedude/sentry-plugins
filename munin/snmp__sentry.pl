@@ -132,7 +132,7 @@ graph_args --lower-limit 0
 graph_vlabel Amps
 graph_category power
 graph_scale no
-graph_info This shows the amperage drawn on your PDU.  You want to keep typical draw within 80% of total circuit capacity.
+graph_info This shows the amperage drawn on your PDU. Per NEC, a PDU should not sustain 80% of its maximum circuit capacity for more than three hours.
 
 ";
 
@@ -156,7 +156,7 @@ graph_args --lower-limit 0
 graph_vlabel Power Factor
 graph_category power
 graph_scale no
-graph_info Power factor represents the amount of energy retained after a power conversion.  A value of 1 would be completely efficient.  When splitting three-phase AC to individual legs, one might reasonably assume a power factor of 0.9.
+graph_info Power factor represents the efficiency of the components connected to the circuit. Power factor declines as components age, increasing the overall load on the circuit.
 
 ";
 
@@ -175,7 +175,7 @@ graph_args --lower-limit 0
 graph_vlabel Crest Factor
 graph_category power
 graph_scale no
-graph_info Crest factor relates the peak value of a signal to its root mean square value.  For three-phase AC, a crest factor of 1.732 is expected.
+graph_info Crest factor relates the peak value of a signal to its root mean square value. For three-phase AC, a crest factor of 1.732 is expected. Low crest factor may indicate UPS overclipping and crest factors over 5 degrade monitoring accuracy.
 
 ";
 
