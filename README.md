@@ -87,14 +87,14 @@ You can build an aggregate graph across your PDUs like so:
     power_watts_total.aggregate.min 0
     power_watts_total.aggregate.colour dd0000
     power_watts_total.aggregate.sum \
-      pdu-01.mtv.examples.com:power_amps_drawn.Master_X \
-      pdu-01.mtv.examples.com:power_amps_drawn.Master_Y \
-      pdu-01.mtv.examples.com:power_amps_drawn.Master_Z \
-      pdu-02.mtv.examples.com:power_amps_drawn.Master_X \
-      pdu-02.mtv.examples.com:power_amps_drawn.Master_Y \
-      pdu-02.mtv.examples.com:power_amps_drawn.Master_Z \
-      pdu-03.mtv.examples.com:power_amps_drawn.AA_BR1 \
-      pdu-03.mtv.examples.com:power_amps_drawn.AA_BR2
+      pdu-01.mtv.example.com:power_amps_drawn.Master_X \
+      pdu-01.mtv.example.com:power_amps_drawn.Master_Y \
+      pdu-01.mtv.example.com:power_amps_drawn.Master_Z \
+      pdu-02.mtv.example.com:power_amps_drawn.Master_X \
+      pdu-02.mtv.example.com:power_amps_drawn.Master_Y \
+      pdu-02.mtv.example.com:power_amps_drawn.Master_Z \
+      pdu-03.mtv.example.com:power_amps_drawn.AA_BR1 \
+      pdu-03.mtv.example.com:power_amps_drawn.AA_BR2
 	power_watts_total.aggregate.cdef aggregate,208,*,1000,/
 ```
 
