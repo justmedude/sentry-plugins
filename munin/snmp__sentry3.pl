@@ -2,9 +2,11 @@
 
 =head1 NAME
 
-Munin plugin snmp__sentry is written to monitor the Sentry line of Power Distribution Units (PDU) offered by Server Technology.
+Munin plugin snmp__sentry3 is written to monitor the Sentry line of Power Distribution Units (PDU) offered by Server Technology.
 
 This plugin currently assumes a 3-phase PDU.
+
+This plugin supports Server Technology Sentry Switched CDU Version 7.x.
 
 =head1 AUTHOR
 
