@@ -1,11 +1,25 @@
 #!/usr/bin/perl -w
 
+=head1 NAME
+
+Munin plugin snmp__sentry is written to monitor the Sentry line of Power Distribution Units (PDU) offered by Server Technology.
+
+This plugin currently assumes a 3-phase PDU.
+
+=head1 AUTHOR
+
+Danny Howard <dannyman@toldme.com>
+
+This plugin was created on the behalf of Quantifind, Inc.  http://www.quantifind.com
+
+=head1 LICENSE
+
+BSD
+
 =head1 MAGIC MARKERS
 
   #%# family=snmpauto
   #%# capabilities=snmpconf
-
-=cut
 
 =head1 EXAMPLE MIB
 
@@ -78,7 +92,6 @@ Sentry3-MIB::infeedPhaseID.1.1 = STRING: A:X-Y
 Sentry3-MIB::infeedPhaseID.1.2 = STRING: A:Y-Z
 Sentry3-MIB::infeedPhaseID.1.3 = STRING: A:Z-X
 
-
 =cut
 
 use strict;
@@ -122,10 +135,22 @@ my $sentry_h = $session->get_hash (
 			}
 	);
 
+if (!defined $sentry_h) {
+	printf "ERROR: %s\n", $session->error();
+	$session->close();
+	my $host;
+	my $port;
+	my $version;
+	my $tail;
+	($host, $port, $version, $tail) = Munin::Plugin::SNMP->config_session();
+	print "host: $host\nport: $port\nversion: $version\ntail: $tail\n";
+	exit 1;
+}
+
 if (defined $ARGV[0] and $ARGV[0] eq "config") {
     my ($host) = Munin::Plugin::SNMP->config_session();
-        print "host_name $host\n" unless $host eq 'localhost';
-        print "
+	print "host_name $host\n" unless $host eq 'localhost';
+	print "
 multigraph power_amps_drawn
 graph_title Power Draw in Amps
 graph_args --lower-limit 0
@@ -136,18 +161,18 @@ graph_info This shows the amperage drawn on your PDU. Per NEC, a PDU should not 
 
 ";
 
-foreach my $k ( keys %{$sentry_h} ) {
-	my $infeedName = $sentry_h->{$k}->{'infeedName'};
-	my $critical	= ($sentry_h->{$k}->{'infeedCapacity'})*.9;	# 90% of capacity
-	my $warning	= $sentry_h->{$k}->{'infeedLoadHighThresh'};	# 80% of capacity
-	
-	print "$infeedName.critical $critical\n";
-	print "$infeedName.draw LINE1\n";
-	print "$infeedName.label $infeedName\n";
-	print "$infeedName.min 0\n";
-	print "$infeedName.type GAUGE\n";
-	print "$infeedName.warning $warning\n";
-}
+    foreach my $k ( keys %{$sentry_h} ) {
+    	my $infeedName = $sentry_h->{$k}->{'infeedName'};
+    	my $critical	= ($sentry_h->{$k}->{'infeedCapacity'})*.9;	# 90% of capacity
+    	my $warning	= $sentry_h->{$k}->{'infeedLoadHighThresh'};	# 80% of capacity
+    	
+    	print "$infeedName.critical $critical\n";
+    	print "$infeedName.draw LINE1\n";
+    	print "$infeedName.label $infeedName\n";
+    	print "$infeedName.min 0\n";
+    	print "$infeedName.type GAUGE\n";
+    	print "$infeedName.warning $warning\n";
+    }
 
         print "
 multigraph power_power_factor
@@ -160,13 +185,13 @@ graph_info Power factor represents the efficiency of the components connected to
 
 ";
 
-foreach my $k ( keys %{$sentry_h} ) {
-	my $infeedName = $sentry_h->{$k}->{'infeedName'};
-	
-	print "$infeedName.draw LINE1\n";
-	print "$infeedName.label $infeedName\n";
-	print "$infeedName.type GAUGE\n";
-}
+    foreach my $k ( keys %{$sentry_h} ) {
+    	my $infeedName = $sentry_h->{$k}->{'infeedName'};
+    	
+    	print "$infeedName.draw LINE1\n";
+    	print "$infeedName.label $infeedName\n";
+    	print "$infeedName.type GAUGE\n";
+    }
 
         print "
 multigraph power_crest_factor
@@ -179,15 +204,15 @@ graph_info Crest factor relates the peak value of a signal to its root mean squa
 
 ";
 
-foreach my $k ( keys %{$sentry_h} ) {
-	my $infeedName = $sentry_h->{$k}->{'infeedName'};
-	
-	print "$infeedName.draw LINE1\n";
-	print "$infeedName.label $infeedName\n";
-	print "$infeedName.type GAUGE\n";
-}
+    foreach my $k ( keys %{$sentry_h} ) {
+    	my $infeedName = $sentry_h->{$k}->{'infeedName'};
+    	
+    	print "$infeedName.draw LINE1\n";
+    	print "$infeedName.label $infeedName\n";
+    	print "$infeedName.type GAUGE\n";
+    }
 
-        exit 0;
+    exit 0;
 }
 
 print "multigraph power_amps_drawn\n";
