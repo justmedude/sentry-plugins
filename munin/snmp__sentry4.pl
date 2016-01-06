@@ -86,7 +86,7 @@ my $sentry_h_2 = $session->get_hash (
 my $sentry_h_3 = $session->get_hash (
 	-baseoid	=> ".1.3.6.1.4.1.1718.4.1.7.3.1",
 	-cols		=> {
-		5 =>  'st4BranchCurrentUtilized',
+		3 =>  'st4BranchCurrent',
 	}
 );
 
@@ -135,7 +135,7 @@ graph_info This shows the amperage drawn on your PDU. Per NEC, a PDU should not 
 print "multigraph power_amps_drawn\n";
 foreach my $k ( keys %{$sentry_h_2} ) {
     my $infeedName = $sentry_h_2->{$k}->{'st4BranchLabel'};
-	my $amps = $sentry_h_3->{$k}->{'st4BranchCurrentUtilized'};
+	my $amps = $sentry_h_3->{$k}->{'st4BranchCurrent'};
 	if ( $amps ) {
 		$amps = $amps * .01;
 	} else {
