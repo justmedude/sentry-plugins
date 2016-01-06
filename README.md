@@ -7,22 +7,36 @@ Munin and Nagios plugins for a three-phase Server Tech PDU.
 
 For Munin: RTFM
 * http://munin-monitoring.org/wiki/munin-node-configure
-* http://munin-monitoring.org/wiki/Using_SNMP_plugins
+* http://munin.readthedocs.org/en/latest/tutorial/snmp.html
 
 Quick and Dirty:
 
-Assuming the hostname of your Server Tech PDU is **my-pdu** and you've configured SNMP appropriately, you can perform the following commands on the munin node you have designated for SNMP:
+Assuming the hostname of your Server Tech PDU is **my-pdu** and you've configured SNMP appropriately, you can perform the following commands on the munin node you have designated for SNMP.
+
+For Sentry3: (firmware 7.x)
+
+Note: my sentry3 code is designed for and tested on 3-phase.
 
 ```
 git clone https://github.com/dannyman/sentry-plugins.git
-sudo cp sentry-plugins/munin/snmp__sentry.pl /usr/share/munin/plugins/snmp__sentry
+sudo cp sentry-plugins/munin/snmp__sentry3.pl /usr/share/munin/plugins/snmp__sentry3
+sudo munin-node-configure --shell --snmp my-pdu
+```
+
+For Sentry4: (firmware 8.x)
+
+Note: my sentry4 code is designed for and tested on single phase, 2 branches.
+
+```
+git clone https://github.com/dannyman/sentry-plugins.git
+sudo cp sentry-plugins/munin/snmp__sentry4.pl /usr/share/munin/plugins/snmp__sentry4
 sudo munin-node-configure --shell --snmp my-pdu
 ```
 
 That should print out, for example:
 
 ```
-ln -s /usr/share/munin/plugins/snmp__sentry /etc/munin/plugins/snmp_my-pdu_sentry
+ln -s /usr/share/munin/plugins/snmp__sentry3 /etc/munin/plugins/snmp_my-pdu_sentry3
 ```
 
 So, you can:
@@ -34,7 +48,7 @@ sudo service munin-node restart
 
 You could then test things out with a sample run:
 ```
-$ sudo munin-run snmp_my-pdu_sentry 
+$ sudo munin-run snmp_my-pdu_sentry3
 multigraph power_amps_drawn
 Master_Y.value 3.76
 Master_X.value 5.82
