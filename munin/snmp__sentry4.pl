@@ -26,7 +26,7 @@ BSD
 =head1 EXAMPLE MIB
 
 $ wget ftp://ftp.servertech.com/Pub/SNMP/Sentry4/Sentry4.mib
-$ snmpwalk -c public -v 2c -M +. -m +Sentry3-MIB 192.168.whatevs .1.3.6.1.4.1.1718.4.1.7
+$ snmpwalk -c public -v 2c -M +. -m +Sentry4-MIB 192.168.whatevs .1.3.6.1.4.1.1718.4.1.7
 Sentry4-MIB::st4BranchCurrentHysteresis.0 = INTEGER: 10 tenth Amps
 Sentry4-MIB::st4BranchID.1.1.1 = STRING: AA1
 Sentry4-MIB::st4BranchID.1.1.2 = STRING: AA2
