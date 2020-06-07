@@ -1,0 +1,155 @@
+#! /usr/bin/perl
+
+# This is basically ripped from
+# http://search.cpan.org/~dtown/Net-SNMP-v6.0.1/lib/Net/SNMP.pm#3._Non-blocking_SNMPv2c_get-bulk-request_for_ifTable
+
+use strict;
+use warnings;
+
+use Net::SNMP qw(:snmp);
+
+my $OID_Sentry3 = '1.3.6.1.4.1.1718.3.2.2.1';
+
+my ($session, $error) = Net::SNMP->session(
+   -hostname    => shift || 'localhost',
+   -community   => shift || 'public',
+   -nonblocking => 1,
+   -translate   => [-octetstring => 0],
+   -version     => 'snmpv2c',
+);
+
+if (!defined $session) {
+   printf "ERROR: %s.\n", $error;
+   exit 1;
+}
+
+my %table; # Hash to store the results
+
+my $result = $session->get_bulk_request(
+   -varbindlist    => [ $OID_Sentry3 ],
+   -callback       => [ \&table_callback, \%table ],
+   -maxrepetitions => 10,
+);
+
+if (!defined $result) {
+   printf "ERROR: %s\n", $session->error();
+   $session->close();
+   exit 1;
+}
+
+# Now initiate the SNMP message exchange.
+
+snmp_dispatcher();
+
+$session->close();
+
+# Print the results, specifically formatting ifPhysAddress.
+
+#for my $oid (oid_lex_sort(keys %table)) {
+#      printf "%s = %s\n", $oid, $table{$oid};
+#}
+
+# Here is we do Nagios stuff ...
+# OK - circuit load: 6.76, 7.82, 6.56|Master_X=6.76;16;18;0;20; Master_Y=7.82;16;18;0;20; Master_Z=6.56;16;18;0;20;
+# This is brittle ...
+my $status = 'OK';
+my $return_code = 0;
+
+my $branch_x_amps_name	= $table{$OID_Sentry3 . ".3.1.1"};
+my $branch_x_amps_curr = $table{$OID_Sentry3 . ".7.1.1"};
+$branch_x_amps_curr = $branch_x_amps_curr * .01;
+my $branch_x_amps_warn = $table{$OID_Sentry3 . ".8.1.1"};
+my $branch_x_amps_max  = $table{$OID_Sentry3 . ".10.1.1"};
+my $branch_x_amps_crit = $branch_x_amps_max * .9;
+my $branch_x_str = sprintf "%s=%0.2f;%d;%d;0;%d;",
+($branch_x_amps_name, $branch_x_amps_curr, $branch_x_amps_warn,
+	$branch_x_amps_crit, $branch_x_amps_max);
+if( $branch_x_amps_curr >= $branch_x_amps_warn ) {
+	$status = 'WARNING'; $return_code = 1;
+}
+if( $branch_x_amps_curr >= $branch_x_amps_crit ) {
+	$status = 'CRITICAL'; $return_code = 2;
+}
+
+
+my $branch_y_amps_name	= $table{$OID_Sentry3 . ".3.1.2"};
+my $branch_y_amps_curr = $table{$OID_Sentry3 . ".7.1.2"};
+$branch_y_amps_curr = $branch_y_amps_curr * .01;
+my $branch_y_amps_warn = $table{$OID_Sentry3 . ".8.1.2"};
+my $branch_y_amps_max  = $table{$OID_Sentry3 . ".10.1.2"};
+my $branch_y_amps_crit = $branch_y_amps_max * .9;
+my $branch_y_str = sprintf "%s=%0.2f;%d;%d;0;%d;",
+($branch_y_amps_name, $branch_y_amps_curr, $branch_y_amps_warn,
+	$branch_y_amps_crit, $branch_y_amps_max);
+if( $branch_y_amps_curr >= $branch_y_amps_warn ) {
+	$status = 'WARNING'; $return_code = 1;
+}
+if( $branch_y_amps_curr >= $branch_y_amps_crit ) {
+	$status = 'CRITICAL'; $return_code = 2;
+}
+
+my $branch_z_amps_name	= $table{$OID_Sentry3 . ".3.1.3"};
+my $branch_z_amps_curr = $table{$OID_Sentry3 . ".7.1.3"};
+$branch_z_amps_curr = $branch_z_amps_curr * .01;
+my $branch_z_amps_warn = $table{$OID_Sentry3 . ".8.1.3"};
+my $branch_z_amps_max  = $table{$OID_Sentry3 . ".10.1.3"};
+my $branch_z_amps_crit = $branch_z_amps_max * .9;
+my $branch_z_str = sprintf "%s=%0.2f;%d;%d;0;%d;",
+($branch_z_amps_name, $branch_z_amps_curr, $branch_z_amps_warn,
+	$branch_z_amps_crit, $branch_z_amps_max);
+if( $branch_z_amps_curr >= $branch_z_amps_warn ) {
+	$status = 'WARNING'; $return_code = 1;
+}
+if( $branch_z_amps_curr >= $branch_z_amps_crit ) {
+	$status = 'CRITICAL'; $return_code = 2;
+}
+
+# OK - circuit load: 6.76, 7.82, 6.56|Master_X=6.76;16;18;0;20; Master_Y=7.82;16;18;0;20; Master_Z=6.56;16;18;0;20;
+printf "$status - circuit load: %0.2f, %0.2f, %0.2f|%s %s %s\n",
+($branch_x_amps_curr, $branch_y_amps_curr, $branch_z_amps_curr,
+	$branch_x_str, $branch_y_str, $branch_z_str);
+exit $return_code;
+
+sub table_callback
+{
+   my ($session, $table) = @_;
+
+   my $list = $session->var_bind_list();
+
+   if (!defined $list) {
+      printf "ERROR: %s\n", $session->error();
+      return;
+   }
+
+   # Loop through each of the OIDs in the response and assign
+   # the key/value pairs to the reference that was passed with
+   # the callback.  Make sure that we are still in the table
+   # before assigning the key/values.
+
+   my @names = $session->var_bind_names();
+   my $next  = undef;
+
+   while (@names) {
+      $next = shift @names;
+      if (!oid_base_match($OID_Sentry3, $next)) {
+         return; # Table is done.
+      }
+      $table->{$next} = $list->{$next};
+   }
+
+   # Table is not done, send another request, starting at the last
+   # OBJECT IDENTIFIER in the response.  No need to include the
+   # calback argument, the same callback that was specified for the
+   # original request will be used.
+
+   my $result = $session->get_bulk_request(
+      -varbindlist    => [ $next ],
+      -maxrepetitions => 10,
+   );
+
+   if (!defined $result) {
+      printf "ERROR: %s.\n", $session->error();
+   }
+
+   return;
+}
